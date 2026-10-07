@@ -1,0 +1,18 @@
+{
+  "name": "vehicleiq",
+  "private": true,
+  "workspaces": ["web", "gateway"],
+  "scripts": {
+    "dev": "concurrently -k -n core,gateway,web -c blue,green,magenta \"npm:dev:core\" \"npm:dev:gateway\" \"npm:dev:web\"",
+    "dev:core": "mvn -Dmaven.repo.local=\"${MAVEN_REPO:-.cache/maven}\" -f core/pom.xml spring-boot:run -Dspring-boot.run.profiles=local",
+    "dev:gateway": "npm run dev --workspace gateway",
+    "dev:web": "npm run dev --workspace web",
+    "dev:worker": "npm run dev:worker --workspace gateway",
+    "build": "npm run build --workspace gateway && npm run build --workspace web && mvn -Dmaven.repo.local=\"${MAVEN_REPO:-.cache/maven}\" -f core/pom.xml package -DskipTests",
+    "start:gateway": "npm run start --workspace gateway",
+    "start:web": "npm run preview --workspace web"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

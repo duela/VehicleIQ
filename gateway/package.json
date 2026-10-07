@@ -1,0 +1,19 @@
+{
+  "name": "@vehicleiq/gateway",
+  "private": true,
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "dev:worker": "node --watch src/worker.js",
+    "build": "node --check src/server.js && node --check src/worker.js",
+    "start": "node dist/server.js",
+    "start:worker": "node dist/worker.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "http-proxy-middleware": "^3.0.3",
+    "ioredis": "^5.4.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

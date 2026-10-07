@@ -8,7 +8,7 @@ VehicleIQ is a vehicle intelligence product for dealers and traders: it turns ve
 
 This document describes a staged architecture. It does not imply that VehicleIQ has live data-provider, Copart, auction, marketplace, payment, or identity-provider integrations. Each external connection is subject to commercial agreement, technical access, permitted use, and data rights. Until then, the system supports user-entered data, uploaded evidence, and explicitly licensed providers selected by the company.
 
-The key design decision is a **modular monolith for the first product**, with clear domain modules and asynchronous job boundaries. Spring Boot owns business rules and the system of record. Node.js provides the API edge and isolates partner-specific protocols. React/TypeScript provides the customer and internal applications. Modules can be extracted into independently deployed services when measured scale, partner isolation, or team ownership justifies it.
+The key design decision is a **modular monolith for the first product**, with clear domain modules and asynchronous job boundaries. Spring Boot owns business rules and the system of record. Node.js provides the API edge and isolates partner-specific protocols. React/JavaScript provides the customer and internal applications. Modules can be extracted into independently deployed services when measured scale, partner isolation, or team ownership justifies it.
 
 ### Principles
 
@@ -483,7 +483,7 @@ Timings are planning ranges; commercial data access, data quality, hiring, and u
 
 - Product/technical founder: product decisions, domain discovery, partnerships, acceptance criteria; should not be the only security/operations owner.
 - Technical lead/backend engineer (Java/Spring): modular core, data model, architecture, code quality.
-- Full-stack engineer (React/TypeScript and Node): customer/admin apps and edge/integration framework.
+- Full-stack engineer (React/JavaScript and Node): customer/admin apps and edge/integration framework.
 - Data/automotive analyst or domain specialist (fractional initially): source quality, valuation methodology, risk taxonomy, evaluation labels.
 - Product designer/researcher (fractional): dealer workflow and accessible customer experience.
 - Security/cloud engineering (fractional specialist initially): cloud baseline, threat review, CI/CD and recovery.

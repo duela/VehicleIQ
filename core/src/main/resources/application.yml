@@ -1,0 +1,50 @@
+server:
+  port: ${CORE_PORT:8080}
+  forward-headers-strategy: framework
+spring:
+  application:
+    name: vehicleiq-core
+  profiles:
+    default: local
+  datasource:
+    url: ${DATABASE_URL:jdbc:h2:file:./data/vehicleiq;MODE=PostgreSQL}
+    username: ${DATABASE_USER:sa}
+    password: ${DATABASE_PASSWORD:}
+    driver-class-name: ${DATABASE_DRIVER:org.h2.Driver}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+  data:
+    redis:
+      url: ${REDIS_URL:redis://localhost:6379}
+  servlet:
+    multipart:
+      max-file-size: 12MB
+      max-request-size: 12MB
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+vehicleiq:
+  jwt-secret: ${JWT_SECRET:local-development-secret-change-before-deploy-vehicleiq}
+  oidc:
+    enabled: ${OIDC_ENABLED:false}
+    issuer-uri: ${OIDC_ISSUER:}
+  event-mode: ${EVENT_MODE:local}
+  worker-token: ${WORKER_TOKEN:local-worker-token-change-before-deploy}
+  upload-dir: ${UPLOAD_DIR:./data/uploads}
+  s3:
+    enabled: ${S3_ENABLED:false}
+    endpoint: ${S3_ENDPOINT:http://localhost:9000}
+    region: ${S3_REGION:eu-west-2}
+    bucket: ${S3_BUCKET:vehicleiq-evidence}
+    access-key: ${S3_ACCESS_KEY:minioadmin}
+    secret-key: ${S3_SECRET_KEY:minioadmin}
+logging:
+  pattern:
+    level: "%5p [corr:%X{correlationId:-none}]"

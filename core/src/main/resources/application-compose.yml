@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://postgres:5432/vehicleiq}
+    username: ${DATABASE_USER:vehicleiq}
+    password: ${DATABASE_PASSWORD:vehicleiq-local}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+vehicleiq:
+  event-mode: redis
+  s3:
+    enabled: true
+

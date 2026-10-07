@@ -1,0 +1,168 @@
+openapi: 3.1.0
+info:
+  title: VehicleIQ API
+  version: 1.0.0-local
+  description: Local-first vehicle assessment API. Data-provider integrations are not connected in this build.
+servers:
+  - url: http://localhost:4000/api
+security:
+  - bearerAuth: []
+paths:
+  /v1/dashboard:
+    get:
+      summary: Get the signed-in tenant dashboard
+      responses:
+        '200': { description: Dashboard counts and recent vehicles }
+  /v1/vehicles:
+    get:
+      summary: List vehicles visible to the signed-in tenant
+      responses:
+        '200': { description: Vehicle list }
+    post:
+      summary: Create a vehicle record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VehicleInput' }
+      responses:
+        '201': { description: Vehicle created }
+        '400': { description: Validation error }
+  /v1/vehicles/import:
+    post:
+      summary: Import validated vehicle rows
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              maxItems: 250
+              items: { $ref: '#/components/schemas/VehicleInput' }
+      responses:
+        '200': { description: Import summary }
+  /v1/vehicles/{vehicleId}/evidence:
+    post:
+      summary: Upload JPG, PNG, WebP or PDF evidence, up to 12 MB
+      parameters:
+        - { in: path, name: vehicleId, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties: { file: { type: string, format: binary } }
+      responses:
+        '200': { description: Evidence metadata }
+  /v1/vehicles/{vehicleId}/analyses:
+    post:
+      summary: Queue an asynchronous assessment
+      parameters:
+        - { in: path, name: vehicleId, required: true, schema: { type: string } }
+      responses:
+        '202':
+          description: Analysis accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  vehicleId: { type: string }
+                  status: { type: string, example: QUEUED }
+                  statusUrl: { type: string }
+  /v1/analyses/{analysisId}:
+    get:
+      summary: Read assessment status and result
+      parameters:
+        - { in: path, name: analysisId, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Versioned assessment output }
+        '404': { description: Not found or not visible to the tenant }
+  /v1/support/tickets:
+    get:
+      summary: List tenant tickets (platform admin sees all demo tickets)
+      responses:
+        '200': { description: Ticket list }
+    post:
+      summary: Create a support ticket
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [subject, message]
+              properties:
+                subject: { type: string, maxLength: 140 }
+                message: { type: string, maxLength: 5000 }
+      responses:
+        '201': { description: Ticket created }
+  /v1/admin/dashboard:
+    get:
+      summary: Read platform operations summary
+      responses:
+        '200': { description: Admin summary }
+        '403': { description: Admin role required }
+  /v1/admin/audit:
+    get:
+      summary: Read recent audit events
+      responses:
+        '200': { description: Audit event list }
+  /partner/v1/vehicle-assessments:
+    post:
+      summary: Partner sandbox request (gateway route)
+      security:
+        - apiKeyAuth: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VehicleInput' }
+      responses:
+        '202': { description: Assessment queued }
+        '401': { description: API key or OAuth token is invalid }
+  /partner/v1/vehicle-assessments/{assessmentId}:
+    get:
+      summary: Read partner assessment status/result
+      security:
+        - apiKeyAuth: []
+        - bearerAuth: []
+      parameters:
+        - { in: path, name: assessmentId, required: true, schema: { type: string } }
+      responses:
+        '200': { description: Assessment output }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    VehicleInput:
+      type: object
+      required: [registration, make, model, year]
+      properties:
+        registration: { type: string, maxLength: 16, example: AB21VQX }
+        make: { type: string, example: BMW }
+        model: { type: string, example: 320d M Sport }
+        year: { type: integer, minimum: 1950, maximum: 2035 }
+        mileage: { type: integer, minimum: 0 }
+        fuelType: { type: string }
+        transmission: { type: string }
+        purchasePrice: { type: number, minimum: 0 }
+        buyerFees: { type: number, minimum: 0 }
+        transport: { type: number, minimum: 0 }
+        repairEstimate: { type: number, minimum: 0 }
+        comparablePrices:
+          type: array
+          items: { type: number, exclusiveMinimum: 0 }
+        conditionNotes: { type: string }
+
