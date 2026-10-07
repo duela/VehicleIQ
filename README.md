@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:5173](http://localhost:5173). Select **Dealer workspace** or **Platform admin** on the local demo sign-in page. The gateway runs on port 4000 and the Spring Boot core on port 8080. The local profile uses an H2 file database and local filesystem evidence storage, so the app works without PostgreSQL, Redis, MinIO, or Docker.
+Open [http://localhost:5173](http://localhost:5173). Select **Dealer workspace** or **Platform admin** on the local demo sign-in page. The gateway runs on port 4000 and the Spring Boot core on port 8080. The local profile uses an H2 file database and local filesystem evidence storage, so the app works without PostgreSQL, Redis, RustFS, or Docker.
 
 If Maven should use a repository-local dependency cache, set `MAVEN_REPO=.cache/maven`; the default in the npm scripts uses that ignored cache path. You can instead point `MAVEN_REPO` to an existing Maven repository.
 
@@ -26,7 +26,7 @@ cp .env.example .env
 docker compose up --build
 ```
 
-Open [http://localhost:8088](http://localhost:8088). Compose starts PostgreSQL, Redis Streams, MinIO, Spring Boot, the Node gateway/integration worker, and the React application. Evidence goes to the S3-compatible MinIO bucket. Named volumes hold local development data; `docker compose down -v` deletes those volumes.
+Open [http://localhost:8088](http://localhost:8088). Compose starts PostgreSQL, Redis Streams, RustFS, Spring Boot, the Node gateway/integration worker, and the React application. Evidence goes to the S3-compatible `vehicleiq-evidence` bucket, which the app creates on first upload. Named volumes hold local development data; `docker compose down -v` deletes those volumes.
 
 The bundled Compose configuration is a development environment, not a production deployment. It uses local demo identity, default-only service credentials unless `.env` is changed, and no production TLS, cloud network policy, OIDC identity provider, payment processor, or contracted data provider.
 
@@ -47,7 +47,7 @@ The bundled Compose configuration is a development environment, not a production
 | PostgreSQL | Compose profile | Persistent system of record |
 | H2 | Local profile | Docker-free local development database |
 | Redis Streams | Compose profile | Outbox event delivery to the Node worker |
-| MinIO / S3 API | Compose profile | Evidence object storage; local profile uses `data/uploads/` |
+| RustFS / S3 API | Compose profile | Evidence object storage; local profile uses `data/uploads/` |
 
 The Spring core is a modular monolith. Creating an assessment writes the analysis and an outbox event. In the local profile, a scheduled core dispatcher completes the deterministic assessment. In Compose, the dispatcher publishes the outbox event to `vehicleiq:events`; the Node worker consumes it and calls the protected internal completion route. Both paths are idempotent at analysis completion.
 
@@ -99,7 +99,7 @@ Do not present future partners or integrations as active commitments.
 - Spring checks JWT roles and tenant scope. The demo API key is compared using a SHA-256 digest and constant-time comparison, but is a shared static credential without rotation or per-client persistence.
 - Evidence is checked by MIME type and size. Malware scanning and short-lived download URLs are not included in this first version.
 - Actuator health is available at `/actuator/health`; the Node health endpoint is `/health`; gateway counters are exposed at `/metrics`.
-- Local PostgreSQL/Redis/MinIO are not backed up automatically. Production backup/RPO/RTO and cloud deployment requirements remain in the architecture document.
+- Local PostgreSQL/Redis/RustFS are not backed up automatically. Production backup/RPO/RTO and cloud deployment requirements remain in the architecture document.
 
 ## Build checks
 
